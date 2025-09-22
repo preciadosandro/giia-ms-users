@@ -1,0 +1,13 @@
+spring:
+  r2dbc:
+    url: r2dbc:mssql://localhost:1433/giia-db
+    username: giia-user
+    password: giia
+  sql:
+    init:
+      mode: always
+  application:
+    name: proveedores-service
+
+server:
+  port: 8082
