@@ -9,7 +9,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/proveedores")
-@RequiredArgsConstructor
 public class ProveedorController {
 
     private final ProveedorService proveedorService;

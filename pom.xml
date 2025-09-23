@@ -46,20 +46,13 @@
 	    </dependency>
 	
 	    <!-- R2DBC Driver para SQL Server -->
-	    <dependency>
-		    <groupId>io.r2dbc</groupId>
-		    <artifactId>r2dbc-mssql</artifactId>
-		    <version>1.0.2.RELEASE</version><!--$NO-MVN-MAN-VER$-->
-		    <scope>test</scope>
-		</dependency>
+        <dependency>
+            <groupId>io.r2dbc</groupId>
+            <artifactId>r2dbc-mssql</artifactId>
+            <version>1.0.0.RELEASE</version>
+        </dependency>
 	
-	    <!-- Driver JDBC (opcional para herramientas como Flyway) -->
-	    <dependency>
-	        <groupId>com.microsoft.sqlserver</groupId>
-	        <artifactId>mssql-jdbc</artifactId>
-	        <scope>runtime</scope>
-	    </dependency>
-	    
+
 	    <!-- Spring Data Redis Reactive -->
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>

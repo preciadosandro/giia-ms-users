@@ -5,6 +5,8 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 @Component
 public class ProveedorEventPublisher {
 
@@ -14,9 +16,10 @@ public class ProveedorEventPublisher {
         this.redisTemplate = redisTemplate;
     }
 
-    public Mono<Long> publishProveedorCreated(Proveedor proveedor) {
-        String channel = "proveedores:created:" + proveedor.getId(); // canal único por proveedor
-        return redisTemplate.convertAndSend(channel, proveedor)
+    public Mono<Long> publishProveedorCreated() {
+        Map<String, String> eventMessage = Map.of("type", "PROVEEDOR");
+        String channel = "proveedor-updates"; // canal único por proveedor
+        return redisTemplate.convertAndSend(channel, eventMessage)
                 .doOnNext(count -> System.out.println("📢 Evento publicado en Redis: " + channel));
     }
 }

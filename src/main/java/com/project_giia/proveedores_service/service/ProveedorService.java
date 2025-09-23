@@ -1,5 +1,6 @@
 package com.project_giia.proveedores_service.service;
 
+import com.project_giia.proveedores_service.clients.DataManagementClient;
 import com.project_giia.proveedores_service.events.ProveedorEventPublisher;
 import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.repository.ProveedorRepository;
@@ -11,36 +12,35 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
+
 public class ProveedorService {
 
 	private final ProveedorRepository proveedorRepository;
     private final ProveedorEventPublisher eventPublisher;
+    private final DataManagementClient dataManagementClient;
 
-    public ProveedorService(ProveedorRepository proveedorRepository, ProveedorEventPublisher eventPublisher) {
+    public ProveedorService(ProveedorRepository proveedorRepository, ProveedorEventPublisher eventPublisher, DataManagementClient dataManagementClient) {
         this.proveedorRepository = proveedorRepository;
         this.eventPublisher = eventPublisher;
+        this.dataManagementClient=dataManagementClient;
     }
 
     public Mono<Proveedor> crear(Proveedor proveedor) {
-        proveedor.setActivo(true);
-        proveedor.setFechaRegistro(LocalDateTime.now());
-
         return proveedorRepository.save(proveedor)
                 .flatMap(saved ->
                         // Publicamos en Redis después de guardar
-                        eventPublisher.publishProveedorCreated(saved)
+                        eventPublisher.publishProveedorCreated()
                                 .thenReturn(saved) // devolvemos el proveedor al cliente
                 )
-                .doOnError(e -> System.err.println("❌ Error creando proveedor: " + e.getMessage()));
+                .doOnError(e -> System.err.println(" Error creando proveedor: " + e.getMessage()));
     }
 
     public Flux<Proveedor> listar() {
-        return proveedorRepository.findAll();
+        return dataManagementClient.getAllProveedores();
     }
 
     public Mono<Proveedor> obtener(Long id) {
-        return proveedorRepository.findById(id);
+        return dataManagementClient.getProveedorById(id);
     }
 
     public Mono<Proveedor> actualizar(Long id, Proveedor datos) {
@@ -51,15 +51,21 @@ public class ProveedorService {
                     p.setEmail(datos.getEmail());
                     p.setTelefono(datos.getTelefono());
                     p.setDireccion(datos.getDireccion());
-                    return proveedorRepository.save(p);
+                    return proveedorRepository.save(p).flatMap(saved ->
+                                    eventPublisher.publishProveedorCreated()
+                                    .thenReturn(saved))
+                                    .doOnError(e -> System.err.println(" Error creando proveedor: " + e.getMessage()));
                 });
     }
 
     public Mono<Proveedor> desactivar(Long id) {
         return proveedorRepository.findById(id)
                 .flatMap(p -> {
-                    p.setActivo(false);
-                    return proveedorRepository.save(p);
+                    p.setActivo("0");
+                    return proveedorRepository.save(p).flatMap(saved ->
+                                                eventPublisher.publishProveedorCreated()
+                                                .thenReturn(saved))
+                                                .doOnError(e -> System.err.println(" Error creando proveedor: " + e.getMessage()));
                 });
     }
 }

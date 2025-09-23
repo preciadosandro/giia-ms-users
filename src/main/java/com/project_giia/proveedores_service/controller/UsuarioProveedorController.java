@@ -1,16 +1,14 @@
 package com.project_giia.proveedores_service.controller;
 
-import com.project_giia.proveedores_service.entity.UsuarioProveedor;
+import com.project_giia.proveedores_service.dtos.Login;
 import com.project_giia.proveedores_service.service.UsuarioProveedorService;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/proveedores/{proveedorId}/usuarios")
-@RequiredArgsConstructor
+@RequestMapping("/api/usuarios")
 public class UsuarioProveedorController {
 
     private final UsuarioProveedorService usuarioProveedorService;
@@ -19,20 +17,20 @@ public class UsuarioProveedorController {
 		this.usuarioProveedorService = usuarioProveedorService;
 	}
 
-    @PostMapping
-    public Mono<UsuarioProveedor> vincular(@PathVariable Long proveedorId,
-                                           @RequestParam Long usuarioId,
-                                           @RequestParam(defaultValue = "false") Boolean esPrincipal) {
-        return usuarioProveedorService.vincularUsuario(proveedorId, usuarioId, esPrincipal);
+    @PostMapping("/loginAdmin")
+    public ResponseEntity<Mono<Boolean>> loginAdmin(@RequestBody Login login){
+
+        return  ResponseEntity.ok(usuarioProveedorService.vincularUsuarioAdmin(login));
     }
 
-    @GetMapping
-    public Flux<UsuarioProveedor> listar(@PathVariable Long proveedorId) {
-        return usuarioProveedorService.listarUsuarios(proveedorId);
+    @PostMapping("/login")
+    public ResponseEntity<Mono<Boolean>> loginProvedor(@RequestBody Login login){
+
+        return  ResponseEntity.ok(usuarioProveedorService.vincularUsuarioAdmin(login));
     }
 
-    @DeleteMapping("/{usuarioId}")
-    public Mono<Void> desvincular(@PathVariable Long proveedorId, @PathVariable Long usuarioId) {
-        return usuarioProveedorService.desvincularUsuario(proveedorId, usuarioId);
-    }
+
+
+
+
 }

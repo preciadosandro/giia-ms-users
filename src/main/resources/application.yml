@@ -1,13 +1,18 @@
 spring:
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
   r2dbc:
-    url: r2dbc:mssql://localhost:1433/giia-db
-    username: giia-user
-    password: giia
-  sql:
-    init:
-      mode: always
+    url: r2dbc:mssql://localhost:1433/GestionInventarioDB
+    username: giia_user
+    password: giia2025
   application:
     name: proveedores-service
 
 server:
   port: 8082
+
+datacache:
+  url: http://localhost:8080
