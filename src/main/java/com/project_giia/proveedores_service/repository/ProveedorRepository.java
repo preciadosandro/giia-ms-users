@@ -6,5 +6,4 @@ import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
 
 public interface ProveedorRepository extends ReactiveCrudRepository<Proveedor, Long> {
-    Mono<Usuario> findByUsuarioProv(String user);
 }

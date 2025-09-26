@@ -1,6 +1,7 @@
 package com.project_giia.proveedores_service.controller;
 
 import com.project_giia.proveedores_service.dtos.Login;
+import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.service.UsuarioProveedorService;
 
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,6 @@ public class UsuarioProveedorController {
 
         return  ResponseEntity.ok(usuarioProveedorService.vincularUsuarioAdmin(login));
     }
-
-
 
 
 

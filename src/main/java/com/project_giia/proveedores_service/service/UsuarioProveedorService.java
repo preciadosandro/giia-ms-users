@@ -2,43 +2,59 @@ package com.project_giia.proveedores_service.service;
 
 import com.project_giia.proveedores_service.dtos.Login;
 
+import com.project_giia.proveedores_service.entity.Proveedor;
+import com.project_giia.proveedores_service.entity.Usuario;
 import com.project_giia.proveedores_service.repository.ProveedorRepository;
-import com.project_giia.proveedores_service.repository.UsuarioProveedorRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 
 @Service
 
 public class UsuarioProveedorService {
 
-    private final UsuarioProveedorRepository usuarioProveedorRepository;
+    @Value("${datacache.redis.key-prefix.usuario-proveedor}")
+    private String keyPrefix;
+    @Value("${datacache.redis.key-prefix.proveedor}")
+    private String keyPrefixProv;
 
     private final ProveedorRepository proveedorRepository;
+    private final ReactiveRedisTemplate<String, Object> redisTemplate;
 
-    public UsuarioProveedorService(UsuarioProveedorRepository usuarioProveedorRepository, ProveedorRepository proveedorRepository) {
-        this.usuarioProveedorRepository = usuarioProveedorRepository;
+    public UsuarioProveedorService( ProveedorRepository proveedorRepository, ReactiveRedisTemplate<String, Object> redisTemplate) {
         this.proveedorRepository= proveedorRepository;
+        this.redisTemplate=redisTemplate;
     }
 
     public Mono<Boolean> vincularUsuarioAdmin(Login login) {
-    return usuarioProveedorRepository.findByUsuario(login.getUser()).flatMap(usuario -> {
-        if(usuario.getPasswordHash().equals(login.getPassword())){
-            return Mono.just(true);
-        }
-        return Mono.just(false);
-    });
+        String redisKey = keyPrefix + login.getUser();
+        return redisTemplate.opsForValue()
+                .get(redisKey)
+                .cast(Usuario.class)
+                .flatMap(  usuario -> {
+                    if (usuario != null && usuario.getPasswordHash().equals(login.getPassword())) {
+                        return Mono.just(true);
+                    } else {
+                        return Mono.just(false);
+                    }
+                })
+                .switchIfEmpty(Mono.just(false));
     }
 
     public Mono<Boolean> vincularUsuario(Login login) {
-        return proveedorRepository.findByUsuarioProv(login.getUser()).flatMap(usuario -> {
-            if(usuario.getPasswordHash().equals(login.getPassword())){
-                return Mono.just(true);
-            }
-            return Mono.just(false);
-        });
+        String redisKey = keyPrefixProv + login.getUser();
+        return redisTemplate.opsForValue()
+                .get(redisKey)
+                .cast(Proveedor.class)
+                .flatMap(  usuario -> {
+                    if (usuario != null && usuario.getPassword().equals(login.getPassword())) {
+                        return Mono.just(true);
+                    } else {
+                        return Mono.just(false);
+                    }
+                })
+                .switchIfEmpty(Mono.just(false));
     }
 
 

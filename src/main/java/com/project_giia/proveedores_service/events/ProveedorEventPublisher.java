@@ -16,9 +16,8 @@ public class ProveedorEventPublisher {
         this.redisTemplate = redisTemplate;
     }
 
-    public Mono<Long> publishProveedorCreated() {
-        Map<String, String> eventMessage = Map.of("type", "PROVEEDOR");
-        String channel = "proveedor-updates"; // canal único por proveedor
+    public Mono<Long> publishProveedorCreated(String channel, String value) {
+        Map<String, String> eventMessage = Map.of("type", value);
         return redisTemplate.convertAndSend(channel, eventMessage)
                 .doOnNext(count -> System.out.println("📢 Evento publicado en Redis: " + channel));
     }
