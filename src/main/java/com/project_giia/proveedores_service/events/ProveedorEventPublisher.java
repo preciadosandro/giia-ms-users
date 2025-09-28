@@ -10,15 +10,14 @@ import java.util.Map;
 @Component
 public class ProveedorEventPublisher {
 
-    private final ReactiveRedisTemplate<String, Object> redisTemplate;
+    private final ReactiveRedisTemplate<String, String> redisTemplate;
 
-    public ProveedorEventPublisher(ReactiveRedisTemplate<String, Object> redisTemplate) {
+    public ProveedorEventPublisher(ReactiveRedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     public Mono<Long> publishProveedorCreated(String channel, String value) {
-        Map<String, String> eventMessage = Map.of("type", value);
-        return redisTemplate.convertAndSend(channel, eventMessage)
-                .doOnNext(count -> System.out.println("📢 Evento publicado en Redis: " + channel));
+        return redisTemplate.convertAndSend(channel, value)
+                .doOnNext(count -> System.out.println(" Evento publicado en Redis channel: " + channel));
     }
 }

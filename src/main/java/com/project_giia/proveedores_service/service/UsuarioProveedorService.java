@@ -1,5 +1,7 @@
 package com.project_giia.proveedores_service.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project_giia.proveedores_service.dtos.Login;
 
 import com.project_giia.proveedores_service.entity.Proveedor;
@@ -16,23 +18,29 @@ public class UsuarioProveedorService {
 
     @Value("${datacache.redis.key-prefix.usuario-proveedor}")
     private String keyPrefix;
-    @Value("${datacache.redis.key-prefix.proveedor}")
+    @Value("${datacache.redis.key-prefix.proveedor-login}")
     private String keyPrefixProv;
-
+    private final ObjectMapper objectMapper;
     private final ProveedorRepository proveedorRepository;
-    private final ReactiveRedisTemplate<String, Object> redisTemplate;
+    private final ReactiveRedisTemplate<String, String> redisTemplate;
 
-    public UsuarioProveedorService( ProveedorRepository proveedorRepository, ReactiveRedisTemplate<String, Object> redisTemplate) {
+    public UsuarioProveedorService( ProveedorRepository proveedorRepository, ReactiveRedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
         this.proveedorRepository= proveedorRepository;
         this.redisTemplate=redisTemplate;
+        this.objectMapper=objectMapper;
     }
 
     public Mono<Boolean> vincularUsuarioAdmin(Login login) {
         String redisKey = keyPrefix + login.getUser();
         return redisTemplate.opsForValue()
                 .get(redisKey)
-                .cast(Usuario.class)
-                .flatMap(  usuario -> {
+                .flatMap(  json -> {
+                    Usuario usuario= null;
+                    try {
+                        usuario = objectMapper.readValue(json, Usuario.class);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException("Error deserializando Usuario", e);
+                    }
                     if (usuario != null && usuario.getPasswordHash().equals(login.getPassword())) {
                         return Mono.just(true);
                     } else {
@@ -46,8 +54,13 @@ public class UsuarioProveedorService {
         String redisKey = keyPrefixProv + login.getUser();
         return redisTemplate.opsForValue()
                 .get(redisKey)
-                .cast(Proveedor.class)
-                .flatMap(  usuario -> {
+                .flatMap(  json -> {
+                    Proveedor usuario = null;
+                    try {
+                        usuario = objectMapper.readValue(json, Proveedor.class);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException("Error deserializando Proveedor", e);
+                    }
                     if (usuario != null && usuario.getPassword().equals(login.getPassword())) {
                         return Mono.just(true);
                     } else {

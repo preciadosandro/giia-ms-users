@@ -27,7 +27,7 @@ public class UsuarioProveedorController {
     @PostMapping("/login")
     public ResponseEntity<Mono<Boolean>> loginProvedor(@RequestBody Login login){
 
-        return  ResponseEntity.ok(usuarioProveedorService.vincularUsuarioAdmin(login));
+        return  ResponseEntity.ok(usuarioProveedorService.vincularUsuario(login));
     }
 
 

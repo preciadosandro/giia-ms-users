@@ -1,18 +1,14 @@
 package com.project_giia.proveedores_service.service;
 
-import com.project_giia.proveedores_service.clients.DataManagementClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project_giia.proveedores_service.events.ProveedorEventPublisher;
 import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.repository.ProveedorRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalDateTime;
 
 @Service
 
@@ -20,18 +16,17 @@ public class ProveedorService {
 
 	private final ProveedorRepository proveedorRepository;
     private final ProveedorEventPublisher eventPublisher;
-    private final DataManagementClient dataManagementClient;
-    private final ReactiveRedisTemplate<String, Proveedor> redisTemplate;
+    private final ReactiveRedisTemplate<String, String> redisTemplate;
 
     @Value("${datacache.redis.key-prefix.proveedor}")
     private String keyPrefix;
     @Value("${datacache.redis.channel.proveedor}")
     private String channel;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ProveedorService(ProveedorRepository proveedorRepository, ProveedorEventPublisher eventPublisher, DataManagementClient dataManagementClient, ReactiveRedisTemplate<String, Proveedor> redisTemplate) {
+    public ProveedorService(ProveedorRepository proveedorRepository, ProveedorEventPublisher eventPublisher, ReactiveRedisTemplate<String, String> redisTemplate) {
         this.proveedorRepository = proveedorRepository;
         this.eventPublisher = eventPublisher;
-        this.dataManagementClient=dataManagementClient;
         this.redisTemplate=redisTemplate;
     }
 
@@ -49,14 +44,27 @@ public class ProveedorService {
         return redisTemplate.keys(keyPrefix + "*")
                 .flatMap(key -> redisTemplate.opsForValue()
                         .get(key)
-                        .cast(Proveedor.class));
+                        .map(json -> {
+                            try {
+                                return objectMapper.readValue(json, Proveedor.class);
+                            } catch (Exception e) {
+                                throw new RuntimeException("Error deserializando Proveedor", e);
+                            }
+                        })
+                );
     }
 
     public Mono<Proveedor> obtener(Long id) {
         String redisKey = keyPrefix + id;
         return redisTemplate.opsForValue()
                 .get(redisKey)
-                .cast(Proveedor.class);
+                .map(json-> {
+                    try {
+                        return objectMapper.readValue(json, Proveedor.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error deserializando Proveedor", e);
+                    }
+                });
     }
 
     public Mono<Proveedor> actualizar(Long id, Proveedor datos) {

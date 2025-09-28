@@ -20,6 +20,7 @@ datacache:
     key-prefix:
       proveedor: "proveedor:"
       usuario-proveedor: "usuario-proveedor:"
-  channel:
-    proveedor: "proveedor-updates"
-    usuario-proveedor: "usu-proveedor-updates"
+      proveedor-login: "provedor-login:"
+    channel:
+      proveedor: "proveedor-updates"
+      usuario-proveedor: "usu-proveedor-updates"
