@@ -1,14 +1,29 @@
-# Imagen base de Java 17 (Spring Boot 3 usa 17 por defecto)
-FROM eclipse-temurin:17-jdk-alpine
-
-# Directorio de trabajo dentro del contenedor
+# Etapa 1: Construcción
+FROM maven:3.9.8-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# Copiar el JAR generado al contenedor
-COPY target/proveedores-service-0.0.1-SNAPSHOT.jar app.jar
+# Copiar pom.xml y descargar dependencias
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Exponer el puerto del microservicio (según application.yml -> 8082)
-EXPOSE 8082
+# Copiar el código fuente y compilar
+COPY src ./src
+RUN mvn clean package spring-boot:repackage -DskipTests
 
-# Comando de arranque
+# Etapa 2: Ejecución
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# Metadata de la imagen
+LABEL name="giia users" \
+      version="v1" \
+      description="Imagen Docker de la aplicación Spring WebFlux giia users"
+
+# Copiar el JAR generado
+COPY --from=build /app/target/*.jar app.jar
+
+# Exponer el puerto 8080
+EXPOSE 8080
+
+# Ejecutar la aplicación
 ENTRYPOINT ["java", "-jar", "app.jar"]
