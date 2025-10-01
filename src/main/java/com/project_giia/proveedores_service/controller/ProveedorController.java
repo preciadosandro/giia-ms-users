@@ -1,5 +1,6 @@
 package com.project_giia.proveedores_service.controller;
 
+import com.project_giia.proveedores_service.dtos.ProveedorRequest;
 import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.service.ProveedorService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ public class ProveedorController {
 	}
 
 	@PostMapping
-    public Mono<Proveedor> crear(@RequestBody Proveedor proveedor) {
+    public Mono<Proveedor> crear(@RequestBody ProveedorRequest proveedor) {
         return proveedorService.crear(proveedor);
     }
 

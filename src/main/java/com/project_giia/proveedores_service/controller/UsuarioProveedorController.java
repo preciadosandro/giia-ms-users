@@ -1,6 +1,7 @@
 package com.project_giia.proveedores_service.controller;
 
 import com.project_giia.proveedores_service.dtos.Login;
+import com.project_giia.proveedores_service.dtos.LoginResponse;
 import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.service.UsuarioProveedorService;
 
@@ -18,14 +19,9 @@ public class UsuarioProveedorController {
 		this.usuarioProveedorService = usuarioProveedorService;
 	}
 
-    @PostMapping("/loginAdmin")
-    public ResponseEntity<Mono<Boolean>> loginAdmin(@RequestBody Login login){
-
-        return  ResponseEntity.ok(usuarioProveedorService.vincularUsuarioAdmin(login));
-    }
 
     @PostMapping("/login")
-    public ResponseEntity<Mono<Boolean>> loginProvedor(@RequestBody Login login){
+    public ResponseEntity<Mono<LoginResponse>> loginProvedor(@RequestBody Login login){
 
         return  ResponseEntity.ok(usuarioProveedorService.vincularUsuario(login));
     }

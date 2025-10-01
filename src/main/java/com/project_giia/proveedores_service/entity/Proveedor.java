@@ -1,5 +1,9 @@
 package com.project_giia.proveedores_service.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -10,6 +14,9 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table("Proveedores")
 public class Proveedor {
     @Id
@@ -27,9 +34,5 @@ public class Proveedor {
     @Column("activo")
     private String activo;
 
-    @Column("usuario_prov")
-    private String usuarioProv;
-    @Column("password")
-    private String password;
-
+    private Long idUsuario;
 }

@@ -1,5 +1,6 @@
 package com.project_giia.proveedores_service.entity;
 
+import jakarta.persistence.Entity;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
@@ -7,16 +8,16 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 @Table(name = "Usuario")
 public class Usuario {
 
     @Id
-    private Integer id;
+    private Long id;
 
     @Column("usuario")
     private String usuario;

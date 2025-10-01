@@ -12,7 +12,7 @@ spring:
     name: proveedores-service
 
 server:
-  port: 8080
+  port: 8081
 
 
 datacache:
@@ -20,7 +20,6 @@ datacache:
     key-prefix:
       proveedor: "proveedor:"
       usuario-proveedor: "usuario-proveedor:"
-      proveedor-login: "provedor-login:"
     channel:
       proveedor: "proveedor-updates"
       usuario-proveedor: "usu-proveedor-updates"

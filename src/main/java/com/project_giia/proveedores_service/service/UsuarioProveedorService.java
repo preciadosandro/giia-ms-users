@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project_giia.proveedores_service.dtos.Login;
 
+import com.project_giia.proveedores_service.dtos.LoginResponse;
 import com.project_giia.proveedores_service.entity.Proveedor;
 import com.project_giia.proveedores_service.entity.Usuario;
 import com.project_giia.proveedores_service.repository.ProveedorRepository;
@@ -18,8 +19,6 @@ public class UsuarioProveedorService {
 
     @Value("${datacache.redis.key-prefix.usuario-proveedor}")
     private String keyPrefix;
-    @Value("${datacache.redis.key-prefix.proveedor-login}")
-    private String keyPrefixProv;
     private final ObjectMapper objectMapper;
     private final ProveedorRepository proveedorRepository;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
@@ -30,7 +29,7 @@ public class UsuarioProveedorService {
         this.objectMapper=objectMapper;
     }
 
-    public Mono<Boolean> vincularUsuarioAdmin(Login login) {
+    public Mono<LoginResponse> vincularUsuario(Login login) {
         String redisKey = keyPrefix + login.getUser();
         return redisTemplate.opsForValue()
                 .get(redisKey)
@@ -42,33 +41,26 @@ public class UsuarioProveedorService {
                         throw new RuntimeException("Error deserializando Usuario", e);
                     }
                     if (usuario != null && usuario.getPasswordHash().equals(login.getPassword())) {
-                        return Mono.just(true);
+
+                        return Mono.just(LoginResponse.builder()
+                                .rol(usuario.getRolId())
+                                .signIn(true)
+                                .build());
                     } else {
-                        return Mono.just(false);
+
+                        return Mono.just(LoginResponse.builder()
+                                .rol(0)
+                                .signIn(false)
+                                .build());
                     }
                 })
-                .switchIfEmpty(Mono.just(false));
+                .switchIfEmpty(Mono.just(LoginResponse.builder()
+                        .rol(0)
+                        .signIn(false)
+                        .build()));
     }
 
-    public Mono<Boolean> vincularUsuario(Login login) {
-        String redisKey = keyPrefixProv + login.getUser();
-        return redisTemplate.opsForValue()
-                .get(redisKey)
-                .flatMap(  json -> {
-                    Proveedor usuario = null;
-                    try {
-                        usuario = objectMapper.readValue(json, Proveedor.class);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException("Error deserializando Proveedor", e);
-                    }
-                    if (usuario != null && usuario.getPassword().equals(login.getPassword())) {
-                        return Mono.just(true);
-                    } else {
-                        return Mono.just(false);
-                    }
-                })
-                .switchIfEmpty(Mono.just(false));
-    }
+
 
 
 
