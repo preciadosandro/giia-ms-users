@@ -40,7 +40,7 @@ public class UsuarioProveedorService {
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException("Error deserializando Usuario", e);
                     }
-                    if (usuario != null && usuario.getPasswordHash().equals(login.getPassword())) {
+                    if (usuario != null && usuario.getPasswordHash().equals(login.getPassword()) && usuario.getActivo()) {
 
                         return Mono.just(LoginResponse.builder()
                                 .rol(usuario.getRolId())

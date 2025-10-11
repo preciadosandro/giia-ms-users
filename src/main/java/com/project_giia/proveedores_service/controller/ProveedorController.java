@@ -18,11 +18,10 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/proveedores")
 @Tag(name = "Proveedores", description = "Gestión de proveedores y sus usuarios asociados")
-@RequiredArgsConstructor
 public class ProveedorController {
 
     private final ProveedorService proveedorService;
-    
+
     public ProveedorController(ProveedorService proveedorService) {
 		this.proveedorService = proveedorService;
 	}
