@@ -34,7 +34,7 @@ public class RedisConfig {
         redisConfig.setPassword(password);
 
         LettuceClientConfiguration clientConfig = LettuceClientConfiguration.builder()
-              //  .useSsl()   // 👈 Habilita SSL
+                .useSsl()   // 👈 Habilita SSL
                 .build();
 
         return new LettuceConnectionFactory(redisConfig, clientConfig);
