@@ -1,8 +1,8 @@
 spring:
   data:
     redis:
-      host: giia-redis.redis.cache.windows.net
-      port: 6380
+      host: localhost
+      port: 6379
       password: xbum3k1j93TXRMdmScdKTc6jXSkr0MpcGAzCaCe5rKQ=
   r2dbc:
     url: r2dbc:mssql://giia.database.windows.net:1433/giia_db?encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30

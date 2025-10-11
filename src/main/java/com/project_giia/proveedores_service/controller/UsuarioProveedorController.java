@@ -91,8 +91,7 @@ public class UsuarioProveedorController {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        usuarioService.delete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Mono<Usuario>> desactivar(@PathVariable Long id) {
+        return ResponseEntity.ok( usuarioService.desactivar(id));
     }
 }

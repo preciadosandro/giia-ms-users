@@ -26,7 +26,7 @@ public class UsuarioService {
     private String channel;
 
     private final ReactiveRedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     public Flux<Usuario> findAll() {
         return redisTemplate.keys(keyPrefix + "*")
@@ -79,10 +79,14 @@ public class UsuarioService {
                 .doOnError(e -> System.err.println(" Error actualizando proveedor: " + e.getMessage()));
     }
 
-    public void delete(Long id) {
-        repository.deleteById(id)
-                .flatMap(r-> eventPublisher.publishProveedorCreated(channel, "Eliminación Usuario")
-                         )
-                .subscribe();
+    public Mono<Usuario>  desactivar(Long id) {
+        return repository.findById(id)
+                .flatMap(p -> {
+                    p.setActivo(false);
+                    return repository.save(p).flatMap(saved ->
+                                    eventPublisher.publishProveedorCreated(channel, "Desactivar Usuario")
+                                            .thenReturn(saved))
+                            .doOnError(e -> System.err.println(" Error a proveedor: " + e.getMessage()));
+                });
     }
 }
