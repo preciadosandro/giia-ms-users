@@ -30,21 +30,25 @@ public class UsuarioProveedorService {
     }
 
     public Mono<LoginResponse> vincularUsuario(Login login) {
-        String redisKey = keyPrefix + login.getUser();
-        return redisTemplate.opsForValue()
-                .get(redisKey)
-                .flatMap(  json -> {
-                    Usuario usuario= null;
+        String redisKey = keyPrefix + "*";
+
+        return redisTemplate.keys(keyPrefix + "*")
+                .map(json -> {
                     try {
-                        usuario = objectMapper.readValue(json, Usuario.class);
-                    } catch (JsonProcessingException e) {
-                        throw new RuntimeException("Error deserializando Usuario", e);
+                        return objectMapper.readValue(json, Usuario.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error deserializando Remision", e);
                     }
+                })
+                .filter(usu -> usu.getUsuario().equals(login.getUser()))
+                .next()
+                .flatMap(  usuario -> {
                     if (usuario != null && usuario.getPasswordHash().equals(login.getPassword()) && usuario.getActivo()) {
 
                         return Mono.just(LoginResponse.builder()
                                 .rol(usuario.getRolId())
                                 .signIn(true)
+                                .idUsuario(usuario.getId())
                                 .build());
                     } else {
 
@@ -58,6 +62,7 @@ public class UsuarioProveedorService {
                         .rol(0)
                         .signIn(false)
                         .build()));
+
     }
 
 
