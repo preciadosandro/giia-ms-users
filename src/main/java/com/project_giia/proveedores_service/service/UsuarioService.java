@@ -55,7 +55,7 @@ public class UsuarioService {
                     }
                 });
     }
-    @Transactional
+
     public Mono<Usuario> create(Usuario usuario) {
         usuario.setActivo(true);
         return repository.save(usuario).flatMap(saved ->
@@ -63,7 +63,7 @@ public class UsuarioService {
                         .thenReturn(saved) // devolvemos el proveedor al cliente
         );
     }
-    @Transactional
+
     public Mono<Usuario> update(Long id, Usuario usuario) {
         return repository.findById(id)
                 .flatMap(existing -> {
@@ -79,7 +79,7 @@ public class UsuarioService {
                                 .thenReturn(saved))
                 .doOnError(e -> System.err.println(" Error actualizando proveedor: " + e.getMessage()));
     }
-    @Transactional
+
     public Mono<Usuario>  desactivar(Long id) {
         return repository.findById(id)
                 .flatMap(p -> {

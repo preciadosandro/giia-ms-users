@@ -38,7 +38,7 @@ public class ProveedorService {
         this.usuarioProveedorRepository=usuarioProveedorRepository;
     }
 
-    @Transactional
+
     public Mono<Proveedor> crear(ProveedorRequest proveedor) {
         Usuario usuario = Usuario.builder()
                 .usuario(proveedor.getUsuario())
@@ -94,7 +94,7 @@ public class ProveedorService {
                     }
                 });
     }
-    @Transactional
+
     public Mono<Proveedor> actualizar(Long id, Proveedor datos) {
         return proveedorRepository.findById(id)
                 .flatMap(p -> {
@@ -110,7 +110,7 @@ public class ProveedorService {
                 })
                 .doOnError(e -> System.err.println(" Error actualizando proveedor: " + e.getMessage()));
     }
-    @Transactional
+
     public Mono<Proveedor> desactivar(Long id) {
         return proveedorRepository.findById(id)
                 .flatMap(p -> {
