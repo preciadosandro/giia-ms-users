@@ -19,6 +19,8 @@ public class UsuarioProveedorService {
 
     @Value("${datacache.redis.key-prefix.usuario-proveedor}")
     private String keyPrefix;
+    @Value("${datacache.redis.key-prefix.proveedor}")
+        private String keyPrefixProvedor;
     private final ObjectMapper objectMapper;
     private final ProveedorRepository proveedorRepository;
     private final ReactiveRedisTemplate<String, String> redisTemplate;
@@ -44,14 +46,26 @@ public class UsuarioProveedorService {
                 .next()
                 .flatMap(  usuario -> {
                     if (usuario != null && usuario.getPasswordHash().equals(login.getPassword()) && usuario.getActivo()) {
-
-                        return Mono.just(LoginResponse.builder()
-                                .rol(usuario.getRolId())
-                                .signIn(true)
-                                .idUsuario(usuario.getId())
-                                .build());
+                         return redisTemplate.keys(keyPrefixProvedor + "*")
+                                .flatMap(key -> redisTemplate.opsForValue()
+                                        .get(key)
+                                        .map(json -> {
+                                            try {
+                                                return objectMapper.readValue(json, Proveedor.class);
+                                            } catch (Exception e) {
+                                                throw new RuntimeException("Error deserializando Proveedor", e);
+                                            }
+                                        })
+                                )
+                                 .filter(pfilter-> pfilter.getIdUsuario().equals(usuario.getId()))
+                                 .next()
+                                 .flatMap(p-> Mono.just(LoginResponse.builder()
+                                         .rol(usuario.getRolId())
+                                         .signIn(true)
+                                         .idUsuario(usuario.getId())
+                                                 .idProvedor(p.getId())
+                                         .build()));
                     } else {
-
                         return Mono.just(LoginResponse.builder()
                                 .rol(0)
                                 .signIn(false)

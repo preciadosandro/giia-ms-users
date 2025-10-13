@@ -9,4 +9,5 @@ public class LoginResponse {
     private Boolean signIn;
     private int rol;
     private Long idUsuario;
+    private Long idProvedor;
 }
